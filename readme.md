@@ -30,3 +30,4 @@
         - `iptables -t nat -A PREROUTING -i eth1 -p tcp -j DNAT --to-destination 192.168.234.250:80`
 
 ###### とりあえずここまで...
+###### あとはatで時間きたら自動で消したりとか、監視とか、、ですかね
