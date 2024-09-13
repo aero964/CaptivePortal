@@ -1,7 +1,7 @@
 ﻿# 作業メモ
 
 1. CaptivePortal用nginx, PHP(php-fpm)インストール
-    - OSはAlma
+    - OSはAlma9
 
 2. 特になし
 
