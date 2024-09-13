@@ -1,13 +1,18 @@
 ﻿# 作業メモ
 
-1. CaptivePortal用nginx, PHP(php-fpm)インストール
+### CaptivePortalを内製化しましょー
+###### iptables + PHPで何とか行けんじゃね？
+###### CaptivePortalの画面出すWebサーバーと、サーバーそのものをDHCPルーターにする感じで
+###### radiusとかめんどうなのは抜き。同意画面出すだけですよん
+
+1. CaptivePortal Web画面用のnginx, PHP(php-fpm)インストール
     - OSはAlma9
 
 2. 特になし
 
 3. NW
    - eth0 WAN 10.7.0.216/24
-   - eth1 LAN 192.268.234.250/24
+   - eth1 LAN 192.168.234.250/24
        - ※eth1にはDHCPサーバーをデーモンで動かすことにした `dnf install dhcp-server`
 
 4. IPv4 Forwarding
