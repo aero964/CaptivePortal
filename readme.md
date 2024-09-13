@@ -8,7 +8,7 @@
 3. NW
    - eth0 WAN 10.7.0.216/24
    - eth1 LAN 192.268.234.250/24
-       - ※eth1にはDHCPを設定した `dnf install dns-server`
+       - ※eth1にはDHCPを設定した `dnf install dhcp-server`
 
 4. IPv4 Forwarding
    - `/etc/sysctl.conf`
