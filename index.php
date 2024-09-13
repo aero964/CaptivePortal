@@ -1,4 +1,5 @@
-﻿<?php
+<?php
+// ばしょ：/usr/share/nginx/html/index.php
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['agree'] == 1) {
 
