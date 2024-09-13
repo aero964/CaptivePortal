@@ -1,6 +1,6 @@
 ﻿# 作業メモ
 
-### CaptivePortalを内製化しましょー
+### CaptivePortalを手作りしましょー
 ###### iptables + PHPで何とか行けんじゃね？
 ###### CaptivePortalの画面出すWebサーバーと、サーバーそのものをDHCPルーターにする感じで
 ###### radiusとかめんどうなのは抜き。同意画面出すだけですよん
