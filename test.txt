@@ -1,0 +1,207 @@
+プロジェクト詳細画面に画像アップロード機能を追加するための完全な手順を詳しく記載します。
+
+
+---
+
+🚩【① マイグレーションの作成】
+
+まず画像ファイルパスを保存するカラムを追加します。
+
+php artisan make:migration add_image_path_to_projects_table --table=projects
+
+📂 マイグレーションファイルを編集
+
+public function up(): void
+{
+    Schema::table('projects', function (Blueprint $table) {
+        $table->string('image_path')->nullable()->after('end_date');
+    });
+}
+
+public function down(): void
+{
+    Schema::table('projects', function (Blueprint $table) {
+        $table->dropColumn('image_path');
+    });
+}
+
+マイグレーション実行：
+
+php artisan migrate
+
+
+---
+
+🚩【② モデルを修正】
+
+モデルのfillableに追加。
+
+📂 app/Models/Project.php
+
+protected $fillable = [
+    'active',
+    'project_name',
+    'segment_id',
+    'base_id',
+    'ssid_id',
+    'note',
+    'manager_emp_no',
+    'manager_name',
+    'it_manager_emp_no',
+    'it_manager_name',
+    'start_date',
+    'end_date',
+    'image_path', // ←追加
+];
+
+
+---
+
+🚩【③ コントローラーの修正】
+
+編集時の画像アップロード処理を追加。
+
+📂 app/Http/Controllers/ProjectController.php
+
+updateメソッドを修正：
+
+
+public function update(Request $request, Project $project)
+{
+    $validated = $request->validate([
+        'active' => 'required|boolean',
+        'project_name' => 'required|string|max:255',
+        'segment_id' => 'required|exists:segments,id',
+        'base_id' => 'required|exists:bases,id',
+        'ssid_id' => 'required|exists:ssids,id',
+        'note' => 'nullable|string|max:1024',
+        'manager_emp_no' => 'required|string|max:255',
+        'manager_name' => 'required|string|max:255',
+        'it_manager_emp_no' => 'required|string|max:255',
+        'it_manager_name' => 'required|string|max:255',
+        'start_date' => 'required|date',
+        'end_date' => 'nullable|date|after:start_date',
+        'image' => 'nullable|image|max:2048', // 画像のバリデーション
+    ]);
+
+    // 画像の処理
+    if ($request->hasFile('image')) {
+        $path = $request->file('image')->store('project_images', 'public');
+        $validated['image_path'] = $path;
+    }
+
+    $project->update($validated);
+
+    return redirect()->route('projects.show', $project)->with('success', 'プロジェクトを更新しました。');
+}
+
+
+---
+
+🚩【④ ビュー（編集画面）を修正】
+
+📂 resources/views/projects/edit.blade.php
+
+フォームに画像アップロードを追加。
+
+<form action="{{ route('projects.update', $project) }}" method="POST" enctype="multipart/form-data">
+    @csrf @method('PUT')
+
+    <!-- 他の項目は省略 -->
+
+    <div class="mb-3">
+        <label class="form-label">プロジェクト画像（任意）</label>
+        <input type="file" name="image" class="form-control">
+        @if($project->image_path)
+            <img src="{{ asset('storage/' . $project->image_path) }}" class="img-fluid mt-2" style="max-height: 200px;">
+        @endif
+    </div>
+
+    <button type="submit" class="btn btn-primary">更新</button>
+    <a href="{{ route('projects.show', $project) }}" class="btn btn-secondary">戻る</a>
+</form>
+
+注意：フォームに enctype="multipart/form-data" を必ず追加してください。
+
+
+
+---
+
+🚩【⑤ 詳細画面に画像を表示】
+
+📂 resources/views/projects/show.blade.php
+
+@extends('layouts.app')
+
+@section('content')
+<h3>{{ $project->project_name }} 詳細</h3>
+
+<ul>
+    <li>ID: {{ $project->id }}</li>
+    <li>セグメント: {{ $project->segment->segment }}</li>
+    <li>拠点: {{ $project->base->base }}</li>
+    <li>SSID: {{ $project->ssid->ssid }}</li>
+    <li>備考: {{ $project->note }}</li>
+</ul>
+
+@if($project->image_path)
+    <div class="mt-4">
+        <h4>プロジェクト画像</h4>
+        <img src="{{ asset('storage/' . $project->image_path) }}" class="img-fluid rounded shadow" style="max-height: 400px;">
+    </div>
+@endif
+
+<!-- ポリシー一覧など以下の内容は省略 -->
+@endsection
+
+
+---
+
+🚩【⑥ ストレージ設定（重要）】
+
+Laravelで画像を公開するために、ストレージのリンクを作成します。
+
+php artisan storage:link
+
+これにより以下が作成されます：
+
+public/storage -> storage/app/public
+
+
+---
+
+🚩【⑦ config/filesystems.phpの確認（推奨設定）】
+
+storage/app/publicへの保存がデフォルトで設定済みのため、変更は不要です。
+
+
+---
+
+🚩【動作確認手順】
+
+1. 編集画面から画像ファイルを選択し保存
+
+
+2. プロジェクト詳細ページに画像が表示されることを確認
+
+
+
+
+---
+
+🚩【注意事項と補足】
+
+アップロードする画像サイズを2MBまでに制限しています。
+（サイズ変更したい場合はmax:2048の値を調整してください）
+
+画像の保存先：storage/app/public/project_images
+
+画像の表示方法：asset('storage/'.$project->image_path)
+
+
+
+---
+
+以上の手順を順番に実施すると、
+プロジェクト詳細画面に画像表示・アップロード機能が完全に実装されます。
+
